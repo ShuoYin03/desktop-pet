@@ -1,5 +1,6 @@
 {
   "name": "desktop-pet",
+  "packageManager": "npm@10.0.0",
   "private": true,
   "version": "0.1.0",
   "description": "Desktop pet application monorepo",
