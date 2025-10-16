@@ -16,13 +16,17 @@ This repository hosts the desktop pet application and supporting tooling. The pr
 
 ## Getting Started
 
-1. Install dependencies using your preferred package manager (PNPM recommended):
+1. Install dependencies with npm (workspaces are configured in `package.json`):
    ```bash
-   pnpm install
+   npm install
    ```
 2. Run development scripts from the root using Turborepo once individual app scripts are defined:
    ```bash
-   pnpm dev
+   npm run dev
+   ```
+3. To launch the desktop application workspace directly during development, run:
+   ```bash
+   npm run dev --workspace desktop-app
    ```
 
 Additional workspace-specific commands are defined inside each package.

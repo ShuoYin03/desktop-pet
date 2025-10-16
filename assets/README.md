@@ -19,4 +19,50 @@ assets/
 
 Keep human-authored metadata (JSON/YAML) next to the processed assets so the engine can load timing info and hitboxes in the future.
 
-For now, the sample configuration in `apps/desktop/src/preload/sampleConfig.ts` uses inline SVG data URIs as stand-ins for real textures. Replace them with sprite outputs produced by your tooling once ready.
+## What you need to prepare
+
+The sample pet expects **PNG frames with transparent backgrounds** for each behaviour state (idle, chasing, sleeping, eating, playing, purring). Every frame should be the same size so they line up during animation. A simple rule of thumb is to draw at 256×256 or smaller and crop away empty space before exporting.
+
+You can start with just **two frames per state** (blink open/closed, mouth open/closed, tail left/right) and expand later. The engine handles the timing; all you need are sequentially numbered files such as `frame-01.png`, `frame-02.png`, etc.
+
+## How to generate basic pixel art (no coding required)
+
+1. **Open an editor** – Visit [https://www.piskelapp.com](https://www.piskelapp.com) (free, runs in the browser).
+2. **Create a sprite** – Choose “Create Sprite”, set the canvas to 128×128 (or whatever square size you like), and enable a transparent background.
+3. **Draw each frame** – Use the frame timeline at the bottom. Duplicate the first frame and adjust tiny details (eye blink, paw movement) to create the illusion of motion.
+4. **Export the frames** – Click “Export”, choose `PNG > Zip` to download all frames individually. Unzip the download on your computer.
+5. **Organise the files** – Place the PNG files into a folder that matches the layout above, for example:
+   ```
+   assets/textures/hamster/processed/idle/frame-01.png
+   assets/textures/hamster/processed/idle/frame-02.png
+   assets/textures/hamster/processed/chasing/frame-01.png
+   ```
+   Keep the naming consistent (`frame-01.png`, `frame-02.png`, …) so the preload script can find them.
+
+Repeat the process for each behaviour. When you only need a quick smoke test, a single folder with a couple of frames is enough—the engine will reuse whatever you give it.
+
+## Plugging the frames into the preload script
+
+1. **Copy the folder into the repo** – For a temporary test you can put your processed frames inside `apps/desktop/src/preload/assets/<pet-id>/<state>/frame-01.png`. The directory name (`<pet-id>`) is arbitrary; it just keeps things tidy. The `apps/desktop/src/preload/assets/` folder is ignored by git so you can drop files there without worrying about accidental commits.
+2. **Load the frames** – Edit `apps/desktop/src/preload/sampleConfig.ts` and point each state to your PNGs. This snippet shows how to read the files and turn them into data URIs that the renderer understands:
+   ```ts
+   import { readFileSync } from 'node:fs';
+   import { resolve } from 'node:path';
+
+   function pngToDataUri(filePath: string) {
+     const bytes = readFileSync(filePath);
+     return `data:image/png;base64,${bytes.toString('base64')}`;
+   }
+
+   const idleFrames = [
+     pngToDataUri(resolve(assetRoot, 'idle', 'frame-01.png')),
+     pngToDataUri(resolve(assetRoot, 'idle', 'frame-02.png'))
+   ];
+   ```
+   Swap out `assetRoot` and the file names to match your folders.
+3. **Adjust timing if needed** – Each frame in the sample config has a `durationMs`. Increase or decrease the numbers to speed up or slow down the animation.
+4. **Run the app** – From the project root run `npm install` (first time only) and then `npm run dev --workspace desktop-app`. Electron will open and display your new frames.
+
+## About the built-in placeholder art
+
+To keep the repository lightweight we removed bundled PNGs. The default configuration now generates a simple hamster sprite procedurally using inline SVG data. This keeps the app functional out of the box while you work on real art. As soon as you drop in your own frames and update `sampleConfig.ts`, the SVG placeholder will disappear.

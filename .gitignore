@@ -70,3 +70,6 @@ Thumbs.db
 # Electron
 apps/*/dist/
 packages/*/dist/
+
+# Local smoke-test assets (untracked)
+apps/desktop/src/preload/assets/
